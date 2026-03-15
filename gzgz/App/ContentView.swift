@@ -79,6 +79,10 @@ struct ContentView: View {
                     }
                 }
                 .keyboardShortcut(.deleteForward, modifiers: [])
+                Button("Capture") {
+                    let _ = CanvasCapture.captureWindow()
+                }
+                .keyboardShortcut("p", modifiers: [.command, .shift])
             }
             .frame(width: 0, height: 0)
             .opacity(0)

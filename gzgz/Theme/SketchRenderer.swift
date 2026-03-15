@@ -56,6 +56,64 @@ enum SketchRenderer {
         .drawingGroup()  // moved to ZStack level
     }
 
+    // MARK: - Selection Circle (hand-drawn loop around a rect)
+
+    /// Hand-drawn elliptical loop around a node — like someone circled it with a pen
+    static func selectionCircle(around rect: CGRect, seed: Int) -> Path {
+        var path = Path()
+        var rng = SeededRandom(seed: seed &+ 333)
+
+        let cx = rect.midX
+        let cy = rect.midY
+        let rx = rect.width / 2 + 14  // generous padding outside node
+        let ry = rect.height / 2 + 14
+        let segments = 20
+
+        // Draw an imperfect ellipse with visible wobble, slight overshoot (doesn't close perfectly)
+        for i in 0...segments {
+            let angle = Double(i) / Double(segments) * 2.0 * .pi * 1.08
+            let wobbleR = rng.wobble(6.0)
+            let x = cx + (rx + wobbleR) * cos(angle)
+            let y = cy + (ry + wobbleR) * sin(angle)
+            if i == 0 {
+                path.move(to: CGPoint(x: x, y: y))
+            } else {
+                let ctrlAngle = (Double(i) - 0.5) / Double(segments) * 2.0 * .pi * 1.08
+                let ctrlWobble = rng.wobble(5.0)
+                let ctrlX = cx + (rx + ctrlWobble) * cos(ctrlAngle)
+                let ctrlY = cy + (ry + ctrlWobble) * sin(ctrlAngle)
+                path.addQuadCurve(
+                    to: CGPoint(x: x, y: y),
+                    control: CGPoint(x: ctrlX, y: ctrlY)
+                )
+            }
+        }
+
+        return path
+    }
+
+    // MARK: - Placeholder Line (faint pencil mark for empty nodes)
+
+    /// A short wobbly horizontal line, like a pencil mark on blank paper
+    static func placeholderLine(in rect: CGRect, seed: Int) -> Path {
+        var path = Path()
+        var rng = SeededRandom(seed: seed &+ 111)
+
+        let y = rect.minY + 20
+        let startX = rect.minX + 14
+        let endX = startX + rect.width * 0.5
+
+        path.move(to: CGPoint(x: startX, y: y + rng.wobble(0.5)))
+        let segments = 6
+        for i in 1...segments {
+            let t = Double(i) / Double(segments)
+            let x = startX + (endX - startX) * t
+            path.addLine(to: CGPoint(x: x, y: y + rng.wobble(0.8)))
+        }
+
+        return path
+    }
+
     // MARK: - Sketchy Rectangle (Double-Stroke)
 
     /// Creates a hand-drawn rectangle using double-stroke technique like roughjs.
@@ -63,14 +121,14 @@ enum SketchRenderer {
     static func sketchyRect(
         in rect: CGRect,
         seed: Int,
-        wobbleMagnitude: Double = 0.8
+        wobbleMagnitude: Double = 2.0
     ) -> Path {
         var path = Path()
         var rng = SeededRandom(seed: seed)
 
         // Draw rectangle twice with slight variation (roughjs double-stroke)
         for pass in 0..<2 {
-            let offset = pass == 0 ? 0.0 : 0.5
+            let offset = pass == 0 ? 0.0 : 1.2
             let corners = [
                 CGPoint(x: rect.minX, y: rect.minY),
                 CGPoint(x: rect.maxX, y: rect.minY),
