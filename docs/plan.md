@@ -11,6 +11,24 @@ gzgz is a cross-platform application that helps users organize unstructured thou
 - **Local first** — data lives on the user's device; custom backend support for sync
 - **Cross-platform** — Apple platforms first, Windows/Linux/Android to follow
 
+## Design
+
+### Concept: Excalidraw Style
+
+The visual language follows the hand-drawn, sketch aesthetic popularized by Excalidraw:
+
+- Wobbly, marker-like lines instead of rigid geometric strokes
+- Handwritten-style fonts for labels and text
+- Informal, approachable feel — matches the "dump raw thoughts" use case
+- Nodes, edges, and UI elements all carry the sketchy hand-drawn quality
+- Feels like scribbling on a whiteboard, not operating a formal tool
+
+### Core Color: Russian Violet
+
+- **Primary**: `#32174D` (Russian Violet) — deep, rich purple as the identity color
+- Used for primary UI accents, selected nodes, active edges, and key interactive elements
+- Supporting palette derived from Russian Violet (lighter/darker tints, complementary tones) — to be refined during implementation
+
 ## Input (Agent-Facing)
 
 When users want AI to organize their thoughts, they send unstructured input to the agent through:
