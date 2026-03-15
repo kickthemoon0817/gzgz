@@ -28,21 +28,58 @@ enum SketchRenderer {
         }
     }
 
-    // MARK: - Dot Grid Background
+    // MARK: - Sketchbook Paper Background
 
-    /// Draw a subtle dot grid pattern (Excalidraw-style)
-    static func dotGrid(in size: CGSize, spacing: CGFloat = 20, dotRadius: CGFloat = 1, color: Color = .gray.opacity(0.15)) -> some View {
+    /// Procedural sketchbook paper texture — subtle grain + faint fiber lines
+    static func paperTexture(in size: CGSize, seed: Int = 42) -> some View {
         Canvas { context, canvasSize in
-            let cols = Int(canvasSize.width / spacing) + 1
-            let rows = Int(canvasSize.height / spacing) + 1
-            for row in 0..<rows {
-                for col in 0..<cols {
-                    let point = CGPoint(x: CGFloat(col) * spacing, y: CGFloat(row) * spacing)
-                    let rect = CGRect(x: point.x - dotRadius, y: point.y - dotRadius,
-                                      width: dotRadius * 2, height: dotRadius * 2)
-                    context.fill(Path(ellipseIn: rect), with: .color(color))
-                }
+            var rng = SeededRandom(seed: seed)
+
+            // Base warm paper tint
+            context.fill(
+                Path(CGRect(origin: .zero, size: canvasSize)),
+                with: .color(Color(red: 0.98, green: 0.973, blue: 0.96))
+            )
+
+            // Paper grain — tiny scattered specks
+            let grainCount = Int(canvasSize.width * canvasSize.height / 120)
+            for _ in 0..<grainCount {
+                let x = rng.next() * canvasSize.width
+                let y = rng.next() * canvasSize.height
+                let radius = 0.3 + rng.next() * 0.5
+                let opacity = 0.02 + rng.next() * 0.04
+                let rect = CGRect(x: x - radius, y: y - radius, width: radius * 2, height: radius * 2)
+                context.fill(Path(ellipseIn: rect), with: .color(.black.opacity(opacity)))
             }
+
+            // Faint horizontal fiber lines — like real paper
+            let fiberCount = Int(canvasSize.height / 3)
+            for i in 0..<fiberCount {
+                let y = rng.next() * canvasSize.height
+                let startX = rng.next() * canvasSize.width * 0.3
+                let length = 20 + rng.next() * 60
+                let opacity = 0.015 + rng.next() * 0.02
+
+                var fiberPath = Path()
+                fiberPath.move(to: CGPoint(x: startX, y: y))
+                fiberPath.addLine(to: CGPoint(x: startX + length, y: y + rng.wobble(0.5)))
+                context.stroke(fiberPath, with: .color(.brown.opacity(opacity)), lineWidth: 0.3)
+            }
+
+            // Very subtle edge vignette — darker edges like real paper
+            let vignetteRect = CGRect(origin: .zero, size: canvasSize).insetBy(dx: -50, dy: -50)
+            let gradient = Gradient(colors: [
+                .clear,
+                .black.opacity(0.02)
+            ])
+            context.fill(
+                Path(ellipseIn: vignetteRect),
+                with: .radialGradient(gradient,
+                    center: CGPoint(x: canvasSize.width / 2, y: canvasSize.height / 2),
+                    startRadius: min(canvasSize.width, canvasSize.height) * 0.3,
+                    endRadius: max(canvasSize.width, canvasSize.height) * 0.7
+                )
+            )
         }
         .frame(width: size.width, height: size.height)
     }
