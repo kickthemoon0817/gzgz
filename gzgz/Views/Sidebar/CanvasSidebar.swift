@@ -7,30 +7,29 @@ struct CanvasSidebar: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Header
             HStack {
                 Text("Canvases")
-                    .font(GZFont.nodeTitle())
+                    .font(GZFont.uiBold(14))
                     .foregroundColor(.gzText)
                 Spacer()
                 Button(action: { isAddingCanvas = true }) {
                     Image(systemName: "plus")
-                        .foregroundColor(.gzPrimary)
+                        .foregroundColor(.gzTextSecondary)
+                        .font(.system(size: 12))
                 }
                 .buttonStyle(.plain)
             }
             .padding(.horizontal, 12)
-            .padding(.vertical, 8)
+            .padding(.vertical, 10)
 
-            Divider()
+            Divider().foregroundColor(.gzChromeBorder)
 
-            // Canvas list
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 0) {
                     ForEach(vm.canvases) { canvas in
                         HStack {
                             Text(canvas.name)
-                                .font(GZFont.node())
+                                .font(GZFont.ui())
                                 .foregroundColor(.gzText)
                                 .lineLimit(1)
                             Spacer()
@@ -51,7 +50,6 @@ struct CanvasSidebar: View {
 
             Spacer()
 
-            // New canvas input
             if isAddingCanvas {
                 HStack {
                     TextField("Canvas name", text: $newCanvasName, onCommit: {
@@ -61,14 +59,14 @@ struct CanvasSidebar: View {
                         isAddingCanvas = false
                     })
                     .textFieldStyle(.plain)
-                    .font(GZFont.node())
+                    .font(GZFont.ui())
                     .padding(8)
                 }
                 .padding(.horizontal, 12)
                 .padding(.bottom, 8)
             }
         }
-        .frame(width: 180)
-        .background(Color.gzBackground)
+        .frame(width: 170)
+        .background(Color.gzChrome)
     }
 }

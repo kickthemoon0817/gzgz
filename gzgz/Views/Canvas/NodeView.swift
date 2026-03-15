@@ -11,25 +11,27 @@ struct NodeView: View {
     @State private var isEditing = false
     @State private var editText: String = ""
     @State private var dragOffset: CGSize = .zero
+    @State private var appeared = false
 
     private var seed: Int { Int(node.id ?? 0) }
 
     var body: some View {
         ZStack {
-            // Sketchy rectangle background
-            SketchRenderer.sketchyRect(
+            // Fill layer
+            SketchRenderer.sketchyRectFill(
                 in: CGRect(x: 0, y: 0, width: node.width, height: node.height),
                 seed: seed
             )
             .fill(isSearchHighlighted ? Color.gzSearchHighlight : Color.gzNodeFill)
 
+            // Double-stroke outline (the hand-drawn look)
             SketchRenderer.sketchyRect(
                 in: CGRect(x: 0, y: 0, width: node.width, height: node.height),
                 seed: seed
             )
             .stroke(
-                isSelected ? Color.gzPrimary : Color.gzNodeStroke,
-                lineWidth: isSelected ? 2.5 : 1.5
+                isSelected ? Color.gzSelectionStroke : Color.gzNodeStroke,
+                lineWidth: isSelected ? 2.0 : 1.0
             )
 
             // Text content
@@ -39,22 +41,40 @@ struct NodeView: View {
                     isEditing = false
                 })
                 .textFieldStyle(.plain)
-                .font(GZFont.node())
+                .font(GZFont.hand())
                 .foregroundColor(.gzText)
-                .padding(12)
+                .padding(14)
                 .frame(width: node.width, height: node.height)
             } else {
-                Text(node.text.isEmpty ? "..." : node.text)
-                    .font(GZFont.node())
-                    .foregroundColor(node.text.isEmpty ? .gzTextSecondary : .gzText)
+                Text(node.text.isEmpty ? "" : node.text)
+                    .font(GZFont.hand())
+                    .foregroundColor(.gzText)
                     .lineLimit(3)
-                    .padding(12)
+                    .padding(14)
                     .frame(width: node.width, height: node.height, alignment: .topLeading)
             }
         }
         .frame(width: node.width, height: node.height)
         .position(x: node.x + node.width / 2 + dragOffset.width,
                   y: node.y + node.height / 2 + dragOffset.height)
+        // Appear animation
+        .scaleEffect(appeared ? 1.0 : 0.0)
+        .opacity(appeared ? 1.0 : 0.0)
+        .onAppear {
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                appeared = true
+            }
+        }
+        // Selection glow
+        .overlay(
+            isSelected ?
+                RoundedRectangle(cornerRadius: 4)
+                    .stroke(Color.gzSelectionStroke.opacity(0.3), lineWidth: 1)
+                    .frame(width: node.width + 8, height: node.height + 8)
+                    .position(x: node.x + node.width / 2 + dragOffset.width,
+                              y: node.y + node.height / 2 + dragOffset.height)
+                : nil
+        )
         .onTapGesture(count: 2) {
             editText = node.text
             isEditing = true
@@ -65,13 +85,14 @@ struct NodeView: View {
         .gesture(
             DragGesture()
                 .onChanged { value in
-                    dragOffset = value.translation
+                    withAnimation(.interactiveSpring) {
+                        dragOffset = value.translation
+                    }
                 }
                 .onEnded { value in
                     onMove(value.translation)
                     dragOffset = .zero
                 }
         )
-        .shadow(color: Color.gzPrimary.opacity(isSelected ? 0.2 : 0), radius: 8)
     }
 }

@@ -11,11 +11,28 @@ struct CanvasContentView: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                // Background — tap to deselect, double-tap to create node
+                // White background with dot grid
                 Color.gzCanvasBackground
+                SketchRenderer.dotGrid(
+                    in: CGSize(width: geometry.size.width * 3, height: geometry.size.height * 3),
+                    spacing: 20,
+                    dotRadius: 0.8,
+                    color: .gzDotGrid
+                )
+                .offset(
+                    x: pan.width.truncatingRemainder(dividingBy: 20) - geometry.size.width,
+                    y: pan.height.truncatingRemainder(dividingBy: 20) - geometry.size.height
+                )
+                .allowsHitTesting(false)
+
+                // Tap targets on background
+                Color.clear
+                    .contentShape(Rectangle())
                     .onTapGesture(count: 2) { location in
                         let canvasPoint = screenToCanvas(location, in: geometry.size)
-                        try? vm.createNode(at: canvasPoint)
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            try? vm.createNode(at: canvasPoint)
+                        }
                     }
                     .onTapGesture(count: 1) { _ in
                         vm.clearSelection()
@@ -62,6 +79,7 @@ struct CanvasContentView: View {
                 .scaleEffect(zoom)
                 .offset(x: pan.width, y: pan.height)
             }
+            .clipped()
             .gesture(panGesture)
             .gesture(zoomGesture)
         }
@@ -91,7 +109,9 @@ struct CanvasContentView: View {
     private var zoomGesture: some Gesture {
         MagnifyGesture()
             .onChanged { value in
-                zoom = max(0.1, min(5.0, value.magnification))
+                withAnimation(.interactiveSpring) {
+                    zoom = max(0.1, min(5.0, value.magnification))
+                }
             }
     }
 }

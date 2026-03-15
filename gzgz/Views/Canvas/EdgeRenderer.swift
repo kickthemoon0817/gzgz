@@ -7,6 +7,8 @@ struct EdgeRenderer: View {
     let isSelected: Bool
     let onSelect: () -> Void
 
+    @State private var drawProgress: CGFloat = 0
+
     private var seed: Int { Int(edge.id ?? 0) &+ 1000 }
 
     private var sourceCenter: CGPoint {
@@ -38,26 +40,36 @@ struct EdgeRenderer: View {
         let angle = atan2(points.end.y - points.start.y, points.end.x - points.start.x)
 
         ZStack {
+            // Hand-drawn line (double-stroke)
             SketchRenderer.sketchyLine(from: points.start, to: points.end, seed: seed)
+                .trim(from: 0, to: drawProgress)
                 .stroke(
-                    isSelected ? Color.gzPrimary : Color.gzEdgeStroke,
-                    lineWidth: isSelected ? 2.5 : 1.5
+                    isSelected ? Color.gzSelectionStroke : Color.gzEdgeStroke,
+                    lineWidth: isSelected ? 2.0 : 1.0
                 )
 
-            SketchRenderer.arrowhead(at: points.end, angle: angle)
-                .stroke(
-                    isSelected ? Color.gzPrimary : Color.gzEdgeStroke,
-                    lineWidth: isSelected ? 2.5 : 1.5
-                )
+            // Arrowhead
+            if drawProgress >= 1.0 {
+                SketchRenderer.arrowhead(at: points.end, angle: angle, seed: seed)
+                    .stroke(
+                        isSelected ? Color.gzSelectionStroke : Color.gzEdgeStroke,
+                        lineWidth: isSelected ? 2.0 : 1.0
+                    )
+                    .transition(.opacity)
+            }
 
+            // Label
             if let label = edge.label, !label.isEmpty {
                 let mid = CGPoint(
                     x: (points.start.x + points.end.x) / 2,
-                    y: (points.start.y + points.end.y) / 2 - 12
+                    y: (points.start.y + points.end.y) / 2 - 14
                 )
                 Text(label)
                     .font(GZFont.label())
                     .foregroundColor(.gzTextSecondary)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Color.gzCanvasBackground.opacity(0.85))
                     .position(mid)
             }
         }
@@ -66,6 +78,11 @@ struct EdgeRenderer: View {
                 .stroke(lineWidth: 12)
         )
         .onTapGesture { onSelect() }
+        .onAppear {
+            withAnimation(.easeOut(duration: 0.4)) {
+                drawProgress = 1.0
+            }
+        }
     }
 
     private func clipToRect(from: CGPoint, to: CGPoint, rect: CGRect) -> CGPoint {

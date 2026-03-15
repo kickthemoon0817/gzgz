@@ -7,10 +7,10 @@ struct SearchOverlay: View {
     var body: some View {
         if vm.isVisible {
             VStack(spacing: 0) {
-                // Search input
-                HStack(spacing: 8) {
+                HStack(spacing: 10) {
                     Image(systemName: "magnifyingglass")
                         .foregroundColor(.gzTextSecondary)
+                        .font(.system(size: 14))
                     TextField("Search thoughts...", text: $vm.query)
                         .textFieldStyle(.plain)
                         .font(GZFont.search())
@@ -38,24 +38,23 @@ struct SearchOverlay: View {
                             return .handled
                         }
                 }
-                .padding(12)
-                .background(Color.gzNodeFill)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 12)
 
-                Divider()
-
-                // Results
                 if !vm.results.isEmpty {
+                    Divider().foregroundColor(.gzChromeBorder)
+
                     ScrollView {
                         LazyVStack(alignment: .leading, spacing: 0) {
                             ForEach(Array(vm.results.enumerated()), id: \.element.id) { index, node in
                                 HStack {
                                     Text(node.text.isEmpty ? "(empty)" : node.text)
-                                        .font(GZFont.node())
+                                        .font(GZFont.ui())
                                         .foregroundColor(.gzText)
                                         .lineLimit(1)
                                     Spacer()
                                 }
-                                .padding(.horizontal, 12)
+                                .padding(.horizontal, 14)
                                 .padding(.vertical, 8)
                                 .background(
                                     index == vm.selectedResultIndex
@@ -69,18 +68,20 @@ struct SearchOverlay: View {
                             }
                         }
                     }
-                    .frame(maxHeight: 300)
+                    .frame(maxHeight: 260)
                 } else if !vm.query.isEmpty {
+                    Divider().foregroundColor(.gzChromeBorder)
                     Text("No results")
-                        .font(GZFont.label())
+                        .font(GZFont.ui(12))
                         .foregroundColor(.gzTextSecondary)
-                        .padding(12)
+                        .padding(14)
                 }
             }
-            .frame(width: 400)
-            .background(Color.gzBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .shadow(color: .black.opacity(0.2), radius: 20, y: 10)
+            .frame(width: 380)
+            .background(.ultraThinMaterial)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .shadow(color: .black.opacity(0.12), radius: 16, y: 8)
+            .transition(.opacity.combined(with: .scale(scale: 0.95)))
         }
     }
 }

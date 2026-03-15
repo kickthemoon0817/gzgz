@@ -7,16 +7,16 @@ struct HistoryPanel: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("History")
-                .font(GZFont.nodeTitle())
+                .font(GZFont.uiBold(14))
                 .foregroundColor(.gzText)
                 .padding(.horizontal, 12)
-                .padding(.vertical, 8)
+                .padding(.vertical, 10)
 
-            Divider()
+            Divider().foregroundColor(.gzChromeBorder)
 
             if history.entries.isEmpty {
                 Text("No actions yet")
-                    .font(GZFont.label())
+                    .font(GZFont.ui(12))
                     .foregroundColor(.gzTextSecondary)
                     .padding(12)
             } else {
@@ -25,11 +25,11 @@ struct HistoryPanel: View {
                         ForEach(Array(history.entries.enumerated()), id: \.offset) { index, entry in
                             HStack(spacing: 8) {
                                 Circle()
-                                    .fill(index <= history.currentIndex ? Color.gzPrimary : Color.gzTextSecondary.opacity(0.3))
-                                    .frame(width: 6, height: 6)
+                                    .fill(index <= history.currentIndex ? Color.gzBrand : Color.gzTextSecondary.opacity(0.3))
+                                    .frame(width: 5, height: 5)
 
                                 Text(entry.displayName)
-                                    .font(GZFont.label())
+                                    .font(GZFont.ui(12))
                                     .foregroundColor(
                                         index <= history.currentIndex ? .gzText : .gzTextSecondary
                                     )
@@ -38,7 +38,7 @@ struct HistoryPanel: View {
                                 Spacer()
                             }
                             .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
+                            .padding(.vertical, 5)
                             .background(
                                 index == history.currentIndex
                                     ? Color.gzSelection
@@ -52,7 +52,7 @@ struct HistoryPanel: View {
                 }
             }
         }
-        .frame(width: 200)
-        .background(Color.gzBackground)
+        .frame(width: 190)
+        .background(Color.gzChrome)
     }
 }
