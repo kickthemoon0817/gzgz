@@ -11,14 +11,16 @@ gzgz is a cross-platform application that helps users organize unstructured thou
 - **Local first** — data lives on the user's device; custom backend support for sync
 - **Cross-platform** — Apple platforms first, Windows/Linux/Android to follow
 
-## Input
+## Input (Agent-Facing)
 
-Users can input thoughts through multiple channels:
+When users want AI to organize their thoughts, they send unstructured input to the agent through:
 
-- **Text box** — paste or type a brain dump
-- **Voice-to-text** — speak thoughts, transcribed into text
-- **Chat-style** — send messages one at a time, conversationally
+- **Text box** — paste or type a brain dump for the agent to process
+- **Voice-to-text** — speak thoughts, transcribed and sent to the agent
+- **Chat-style** — send messages one at a time, conversationally with the agent
 - **Mix** — freely combine any of the above in a single session
+
+This is separate from the user's direct control of the application. Users can always create, organize, and manage thoughts manually without involving an agent (see Interaction Model below).
 
 ## Organization & Categories
 
