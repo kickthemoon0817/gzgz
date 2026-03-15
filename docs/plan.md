@@ -24,10 +24,10 @@ This is separate from the user's direct control of the application. Users can al
 
 ## Organization & Categories
 
-- If the user defines categories, use them
-- If no category is specified, AI (when connected) or the app auto-generates categories based on content
-- Categories are always editable — rename, merge, split, delete at any time
-- Without AI, users create and assign categories manually
+- No predefined categories — the app starts as a free space
+- Users create their own categories as needed
+- When AI is connected and no category is specified, the agent generates categories based on content
+- All categories are always editable — rename, merge, split, delete at any time
 
 ## Interaction Model
 
