@@ -51,9 +51,60 @@ This is separate from the user's direct control of the application. Users can al
 - Users structure their thinking through connections, nesting, and positioning — not by sorting into buckets
 - When AI is connected, it suggests relationships and structure, not categories
 
+## Canvas Experience
+
+### First Impression
+
+- **Pure blank canvas** — no icons, no buttons, no onboarding prompts. Like opening a fresh sketchbook.
+- The canvas IS the app. Nothing stands between the user and their thoughts.
+
+### Creating Nodes
+
+- **Any input creates** — tap/click anywhere, just start typing, draw a shape, handwrite with Apple Pencil. Every gesture is valid.
+- A node is a node — no types, no special behaviors. Meaning comes from what the user writes, where they place it, and how they connect it.
+- The app must accept "garbage input instantly" — zero friction, zero structure required.
+
+### Creating Connections
+
+- **Draw a line** between two nodes
+- **Drag nodes close** together and the app suggests a connection
+- **Select two nodes** and choose a relationship type
+- **Freehand line** between any two points, recognized as a connection
+- Connections never block or interfere with other interactions — no modal dialogs, no forced workflows
+
+### Navigating at Scale (50+ nodes)
+
+- **Infinite zoom** — pinch/scroll freely, like a real infinite whiteboard
+- **Focus mode** — tap a node to zoom into it and its immediate connections, dimming everything else
+- **Spatial clusters** — nodes placed near each other form subtle visual groups (background shading), never forced
+
+### Search (`Cmd+K` / `Ctrl+K`)
+
+- Core feature, not an afterthought
+- Robust search engine triggered by keyboard shortcut
+- Searches across node text, connections, and canvases
+- Matching nodes highlight directly on the canvas
+
+### Multiple Canvases
+
+- Default is one infinite canvas
+- Users can create additional canvases when they want to separate concerns (work, side project, vacation)
+
+### History (Photoshop-style)
+
+- **Full operation history panel** — every action is recorded and visible
+- **Standard undo/redo** (`Cmd+Z`) for immediate mistakes
+- **Jump to any past state** — click any point in the history to rewind the canvas
+- See how thinking evolved over time
+
+### Later Features
+
+- **Freehand drawing** — circles around node groups, annotations, doodling, raw ink strokes alongside the graph
+- **Timeline view** — arrange nodes with dates along a time axis
+
 ## Interaction Model
 
-Users can interact with organized thoughts through:
+Users can interact with nodes through:
 
 - **Drag & drop** — move nodes freely on the canvas
 - **Edit in place** — tap/click to refine or rewrite any item
