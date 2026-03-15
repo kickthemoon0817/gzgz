@@ -38,6 +38,10 @@ When users want AI to organize their thoughts, they send unstructured input to t
 - **Chat-style** — send messages one at a time, conversationally with the agent
 - **Mix** — freely combine any of the above in a single session
 
+**Later / Optional:**
+
+- **Image input** — send images (photos, sketches, screenshots) for the agent to extract and organize thoughts from
+
 This is separate from the user's direct control of the application. Users can always create, organize, and manage thoughts manually without involving an agent (see Interaction Model below).
 
 ## Organization & Categories
