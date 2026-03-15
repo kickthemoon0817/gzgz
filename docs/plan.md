@@ -44,21 +44,21 @@ When users want AI to organize their thoughts, they send unstructured input to t
 
 This is separate from the user's direct control of the application. Users can always create, organize, and manage thoughts manually without involving an agent (see Interaction Model below).
 
-## Organization & Categories
+## Organization
 
-- No predefined categories — the app starts as a free space
-- Users create their own categories as needed
-- When AI is connected and no category is specified, the agent generates categories based on content
-- All categories are always editable — rename, merge, split, delete at any time
+- No categories — the app is a free-form space
+- Thoughts exist as nodes in a graph; organization emerges from relationships and spatial arrangement
+- Users structure their thinking through connections, nesting, and positioning — not by sorting into buckets
+- When AI is connected, it suggests relationships and structure, not categories
 
 ## Interaction Model
 
 Users can interact with organized thoughts through:
 
-- **Drag & drop** — move items between categories
+- **Drag & drop** — move nodes freely on the canvas
 - **Edit in place** — tap/click to refine or rewrite any item
 - **Expand / collapse** — drill into items, add sub-items and details
-- **Priority / ordering** — reorder items within a category by importance
+- **Priority / ordering** — reorder or rank items by importance
 - **Action conversion** — turn an idea into a task (with due date), a plan into steps, etc.
 
 ## Relationships & Visualization
@@ -68,7 +68,7 @@ Users can interact with organized thoughts through:
 - **Simple links** — "related to" connections between any two items
 - **Typed relationships** — "depends on", "inspires", "contradicts", "part of", and custom types
 - **Hierarchical** — parent-child nesting (idea -> sub-ideas)
-- **Lateral links** — connections across categories
+- **Lateral links** — connections between any nodes across the graph
 - AI can suggest relationship types; users can define their own
 
 ### Visualization
@@ -132,9 +132,9 @@ The Rust server is a **first-class deliverable**, not an afterthought:
 
 ### MCP Server Capabilities
 
-- Read the thought graph (items, categories, relationships)
+- Read the thought graph (nodes and relationships)
 - Create / update / delete items
-- Auto-categorize items (delegates to connected AI)
+- Suggest structure and relationships (delegates to connected AI)
 - Suggest relationships between items
 - Export/import thought graphs as JSON
 
