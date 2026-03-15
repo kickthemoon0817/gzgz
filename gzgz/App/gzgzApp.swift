@@ -15,7 +15,7 @@ struct gzgzApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView(vm: CanvasViewModel(store: store), store: store)
+            ContentView(vm: CanvasViewModel(store: store))
         }
         .windowStyle(.automatic)
     }

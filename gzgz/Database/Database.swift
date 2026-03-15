@@ -12,22 +12,35 @@ struct AppDatabase {
     }
 
     static func inMemory() throws -> AppDatabase {
-        let writer = try DatabaseQueue(configuration: .init())
+        var config = Configuration()
+        config.prepareDatabase { db in
+            try db.execute(sql: "PRAGMA foreign_keys = ON")
+            try db.execute(sql: "PRAGMA journal_mode = WAL")
+        }
+        let writer = try DatabaseQueue(configuration: config)
         return try AppDatabase(writer)
     }
 
     static func onDisk() throws -> AppDatabase {
+        var config = Configuration()
+        config.prepareDatabase { db in
+            try db.execute(sql: "PRAGMA foreign_keys = ON")
+            try db.execute(sql: "PRAGMA journal_mode = WAL")
+        }
         let url = try FileManager.default
             .url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
             .appendingPathComponent("gzgz", isDirectory: true)
         try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
         let dbPath = url.appendingPathComponent("gzgz.sqlite").path
-        let writer = try DatabaseQueue(path: dbPath)
+        let writer = try DatabaseQueue(path: dbPath, configuration: config)
         return try AppDatabase(writer)
     }
 
     private var migrator: DatabaseMigrator {
         var migrator = DatabaseMigrator()
+        #if DEBUG
+        migrator.eraseDatabaseOnSchemaChange = true
+        #endif
 
         migrator.registerMigration("v1") { db in
             try db.create(table: "canvases") { t in

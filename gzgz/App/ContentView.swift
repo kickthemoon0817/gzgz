@@ -6,9 +6,9 @@ struct ContentView: View {
     @State private var history = HistoryManager()
     @State private var showHistory = false
 
-    init(vm: CanvasViewModel, store: Store) {
+    init(vm: CanvasViewModel) {
         self._vm = State(initialValue: vm)
-        self._searchVM = State(initialValue: SearchViewModel(store: store))
+        self._searchVM = State(initialValue: SearchViewModel(store: vm.store))
     }
 
     var body: some View {
@@ -77,9 +77,7 @@ struct ContentView: View {
     private func applyHistoryAction(_ action: HistoryAction) {
         switch action {
         case .createNode(let id, let canvasId, let text, let x, let y):
-            var node = ThoughtNode(id: id, canvasId: canvasId, text: text, x: x, y: y)
-            try? vm.store.saveNode(&node)
-            try? vm.reload()
+            try? vm.restoreNode(id: id, canvasId: canvasId, text: text, x: x, y: y)
         case .deleteNode(let id, _, _, _, _, _, _):
             try? vm.deleteNode(id: id)
         case .moveNode(let id, _, _, let toX, let toY):

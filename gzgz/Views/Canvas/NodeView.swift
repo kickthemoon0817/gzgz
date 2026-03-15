@@ -36,15 +36,16 @@ struct NodeView: View {
 
             // Text content
             if isEditing {
-                TextField("", text: $editText, onCommit: {
-                    onEditText(editText)
-                    isEditing = false
-                })
-                .textFieldStyle(.plain)
-                .font(GZFont.hand())
-                .foregroundColor(.gzText)
-                .padding(14)
-                .frame(width: node.width, height: node.height)
+                TextField("", text: $editText)
+                    .onSubmit {
+                        onEditText(editText)
+                        isEditing = false
+                    }
+                    .textFieldStyle(.plain)
+                    .font(GZFont.hand())
+                    .foregroundColor(.gzText)
+                    .padding(14)
+                    .frame(width: node.width, height: node.height)
             } else {
                 Text(node.text.isEmpty ? "" : node.text)
                     .font(GZFont.hand())
@@ -61,7 +62,11 @@ struct NodeView: View {
         .scaleEffect(appeared ? 1.0 : 0.0)
         .opacity(appeared ? 1.0 : 0.0)
         .onAppear {
-            withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+            if Date().timeIntervalSince(node.createdAt) < 1.0 {
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                    appeared = true
+                }
+            } else {
                 appeared = true
             }
         }
@@ -71,8 +76,6 @@ struct NodeView: View {
                 RoundedRectangle(cornerRadius: 4)
                     .stroke(Color.gzSelectionStroke.opacity(0.3), lineWidth: 1)
                     .frame(width: node.width + 8, height: node.height + 8)
-                    .position(x: node.x + node.width / 2 + dragOffset.width,
-                              y: node.y + node.height / 2 + dragOffset.height)
                 : nil
         )
         .onTapGesture(count: 2) {
@@ -82,16 +85,16 @@ struct NodeView: View {
         .onTapGesture(count: 1) {
             onSelect()
         }
-        .gesture(
-            DragGesture()
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 6)
                 .onChanged { value in
-                    withAnimation(.interactiveSpring) {
-                        dragOffset = value.translation
-                    }
+                    dragOffset = value.translation
                 }
                 .onEnded { value in
                     onMove(value.translation)
-                    dragOffset = .zero
+                    withAnimation(.spring(response: 0.2, dampingFraction: 0.8)) {
+                        dragOffset = .zero
+                    }
                 }
         )
     }

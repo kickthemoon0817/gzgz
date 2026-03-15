@@ -2,7 +2,7 @@ import SwiftUI
 
 @Observable
 final class CanvasViewModel {
-    let store: Store
+    private(set) var store: Store
 
     var nodes: [ThoughtNode] = []
     var edges: [Edge] = []
@@ -52,18 +52,28 @@ final class CanvasViewModel {
         selectedNodeId = node.id
     }
 
+    func restoreNode(id: Int64, canvasId: Int64, text: String, x: Double, y: Double) throws {
+        var node = ThoughtNode(id: id, canvasId: canvasId, text: text, x: x, y: y)
+        try store.saveNode(&node)
+        try reload()
+    }
+
     func updateNodeText(id: Int64, text: String) throws {
         guard let index = nodes.firstIndex(where: { $0.id == id }) else { return }
-        nodes[index].text = text
-        nodes[index].updatedAt = Date()
+        var updated = nodes[index]
+        updated.text = text
+        updated.updatedAt = Date()
+        nodes[index] = updated
         try store.saveNode(&nodes[index])
     }
 
     func moveNode(id: Int64, delta: CGSize) throws {
         guard let index = nodes.firstIndex(where: { $0.id == id }) else { return }
-        nodes[index].x += delta.width
-        nodes[index].y += delta.height
-        nodes[index].updatedAt = Date()
+        var updated = nodes[index]
+        updated.x += delta.width
+        updated.y += delta.height
+        updated.updatedAt = Date()
+        nodes[index] = updated
         try store.saveNode(&nodes[index])
     }
 

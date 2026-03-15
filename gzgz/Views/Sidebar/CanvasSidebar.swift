@@ -22,7 +22,7 @@ struct CanvasSidebar: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 10)
 
-            Divider().foregroundColor(.gzChromeBorder)
+            Divider().overlay(Color.gzChromeBorder)
 
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 0) {
@@ -42,7 +42,8 @@ struct CanvasSidebar: View {
                                 : Color.clear
                         )
                         .onTapGesture {
-                            try? vm.switchCanvas(id: canvas.id!)
+                            guard let id = canvas.id else { return }
+                            try? vm.switchCanvas(id: id)
                         }
                     }
                 }

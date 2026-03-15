@@ -2,3 +2,6 @@ gzgz.xcodeproj
 .build/
 DerivedData/
 .swiftpm/
+.omc/
+*.profraw
+.build/

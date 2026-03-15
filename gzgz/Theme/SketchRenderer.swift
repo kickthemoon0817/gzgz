@@ -30,58 +30,30 @@ enum SketchRenderer {
 
     // MARK: - Sketchbook Paper Background
 
-    /// Procedural sketchbook paper texture — subtle grain + faint fiber lines
-    static func paperTexture(in size: CGSize, seed: Int = 42) -> some View {
-        Canvas { context, canvasSize in
-            var rng = SeededRandom(seed: seed)
+    /// Lightweight paper background — warm tint with subtle noise via overlay
+    static func paperBackground() -> some View {
+        ZStack {
+            // Warm paper base
+            Color(red: 0.98, green: 0.973, blue: 0.96)
 
-            // Base warm paper tint
-            context.fill(
-                Path(CGRect(origin: .zero, size: canvasSize)),
-                with: .color(Color(red: 0.98, green: 0.973, blue: 0.96))
-            )
-
-            // Paper grain — tiny scattered specks
-            let grainCount = Int(canvasSize.width * canvasSize.height / 120)
-            for _ in 0..<grainCount {
-                let x = rng.next() * canvasSize.width
-                let y = rng.next() * canvasSize.height
-                let radius = 0.3 + rng.next() * 0.5
-                let opacity = 0.02 + rng.next() * 0.04
-                let rect = CGRect(x: x - radius, y: y - radius, width: radius * 2, height: radius * 2)
-                context.fill(Path(ellipseIn: rect), with: .color(.black.opacity(opacity)))
+            // Subtle grain noise via thin repeating pattern
+            Canvas { context, size in
+                // Sparse grain — only ~200 specks total, not per-pixel
+                var rng = SeededRandom(seed: 42)
+                for _ in 0..<200 {
+                    let x = rng.next() * size.width
+                    let y = rng.next() * size.height
+                    let r = 0.5 + rng.next() * 1.0
+                    let opacity = 0.025 + rng.next() * 0.03
+                    context.fill(
+                        Path(ellipseIn: CGRect(x: x - r, y: y - r, width: r * 2, height: r * 2)),
+                        with: .color(.brown.opacity(opacity))
+                    )
+                }
             }
-
-            // Faint horizontal fiber lines — like real paper
-            let fiberCount = Int(canvasSize.height / 3)
-            for i in 0..<fiberCount {
-                let y = rng.next() * canvasSize.height
-                let startX = rng.next() * canvasSize.width * 0.3
-                let length = 20 + rng.next() * 60
-                let opacity = 0.015 + rng.next() * 0.02
-
-                var fiberPath = Path()
-                fiberPath.move(to: CGPoint(x: startX, y: y))
-                fiberPath.addLine(to: CGPoint(x: startX + length, y: y + rng.wobble(0.5)))
-                context.stroke(fiberPath, with: .color(.brown.opacity(opacity)), lineWidth: 0.3)
-            }
-
-            // Very subtle edge vignette — darker edges like real paper
-            let vignetteRect = CGRect(origin: .zero, size: canvasSize).insetBy(dx: -50, dy: -50)
-            let gradient = Gradient(colors: [
-                .clear,
-                .black.opacity(0.02)
-            ])
-            context.fill(
-                Path(ellipseIn: vignetteRect),
-                with: .radialGradient(gradient,
-                    center: CGPoint(x: canvasSize.width / 2, y: canvasSize.height / 2),
-                    startRadius: min(canvasSize.width, canvasSize.height) * 0.3,
-                    endRadius: max(canvasSize.width, canvasSize.height) * 0.7
-                )
-            )
+            .allowsHitTesting(false)
         }
-        .frame(width: size.width, height: size.height)
+        .drawingGroup()  // moved to ZStack level
     }
 
     // MARK: - Sketchy Rectangle (Double-Stroke)
@@ -183,7 +155,7 @@ enum SketchRenderer {
         // Draw the line twice with slight offset (double-stroke)
         for pass in 0..<2 {
             let passOffset = pass == 0 ? 0.0 : 0.4
-            let segments = max(2, Int(length / 30))
+            let segments = min(8, max(2, Int(length / 50)))
 
             let startWobbled = CGPoint(
                 x: start.x + rng.wobble(wobbleMagnitude * 0.3) + passOffset,
@@ -194,27 +166,27 @@ enum SketchRenderer {
             let nx = -dy / length
             let ny = dx / length
 
-            for i in 1...segments {
+            var i = 1
+            while i <= segments {
                 let t = Double(i) / Double(segments)
                 let baseX = start.x + dx * t
                 let baseY = start.y + dy * t
                 let w = rng.wobble(wobbleMagnitude) + passOffset
-
                 let point = CGPoint(x: baseX + nx * w, y: baseY + ny * w)
 
-                if i == segments {
-                    // End at the actual endpoint with slight wobble
+                if i >= segments {
                     path.addLine(to: CGPoint(
                         x: end.x + rng.wobble(wobbleMagnitude * 0.3),
                         y: end.y + rng.wobble(wobbleMagnitude * 0.3)
                     ))
+                    i += 1
                 } else {
                     let controlW = rng.wobble(wobbleMagnitude * 0.5)
-                    let nextT = Double(i + 1) / Double(segments)
+                    let nextT = Double(min(i + 1, segments)) / Double(segments)
                     let nextX = start.x + dx * nextT + nx * controlW
                     let nextY = start.y + dy * nextT + ny * controlW
                     path.addQuadCurve(to: CGPoint(x: nextX, y: nextY), control: point)
-                    // Skip next iteration since we drew two segments
+                    i += 2
                 }
             }
         }

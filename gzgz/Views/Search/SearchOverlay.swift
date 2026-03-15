@@ -30,8 +30,9 @@ struct SearchOverlay: View {
                             if let node = vm.selectedResult {
                                 onNavigateToNode(node)
                                 vm.toggle()
+                                return .handled
                             }
-                            return .handled
+                            return .ignored
                         }
                         .onKeyPress(.escape) {
                             vm.toggle()
@@ -42,7 +43,7 @@ struct SearchOverlay: View {
                 .padding(.vertical, 12)
 
                 if !vm.results.isEmpty {
-                    Divider().foregroundColor(.gzChromeBorder)
+                    Divider().overlay(Color.gzChromeBorder)
 
                     ScrollView {
                         LazyVStack(alignment: .leading, spacing: 0) {
@@ -70,7 +71,7 @@ struct SearchOverlay: View {
                     }
                     .frame(maxHeight: 260)
                 } else if !vm.query.isEmpty {
-                    Divider().foregroundColor(.gzChromeBorder)
+                    Divider().overlay(Color.gzChromeBorder)
                     Text("No results")
                         .font(GZFont.ui(12))
                         .foregroundColor(.gzTextSecondary)

@@ -56,7 +56,7 @@ final class HistoryManager {
     }
 
     func undo() -> HistoryAction? {
-        guard canUndo else { return nil }
+        guard canUndo, currentIndex < entries.count else { return nil }
         let action = entries[currentIndex]
         redoStack.append(action)
         currentIndex -= 1
@@ -74,15 +74,13 @@ final class HistoryManager {
         var actions: [HistoryAction] = []
         if index < currentIndex {
             while currentIndex > index {
-                if let action = undo() {
-                    actions.append(action)
-                }
+                guard let action = undo() else { break }
+                actions.append(action)
             }
         } else if index > currentIndex {
             while currentIndex < index {
-                if let action = redo() {
-                    actions.append(action)
-                }
+                guard let action = redo() else { break }
+                actions.append(action)
             }
         }
         return actions

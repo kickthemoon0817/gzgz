@@ -75,10 +75,9 @@ final class Store {
     // MARK: - Search
 
     func searchNodes(query: String) throws -> [ThoughtNode] {
-        try database.reader.read { db in
-            try ThoughtNode
-                .filter(Column("text").like("%\(query)%"))
-                .fetchAll(db)
+        let pattern = "%\(query)%"
+        return try database.reader.read { db in
+            try ThoughtNode.filter(sql: "text LIKE ?", arguments: [pattern]).fetchAll(db)
         }
     }
 }

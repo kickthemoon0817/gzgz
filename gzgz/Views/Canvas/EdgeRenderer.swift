@@ -22,6 +22,10 @@ struct EdgeRenderer: View {
     }
 
     private var edgePoints: (start: CGPoint, end: CGPoint) {
+        guard sourceNode.width > 0, sourceNode.height > 0,
+              targetNode.width > 0, targetNode.height > 0 else {
+            return (sourceCenter, targetCenter)
+        }
         let start = clipToRect(
             from: sourceCenter, to: targetCenter,
             rect: CGRect(x: sourceNode.x, y: sourceNode.y,
@@ -38,10 +42,11 @@ struct EdgeRenderer: View {
     var body: some View {
         let points = edgePoints
         let angle = atan2(points.end.y - points.start.y, points.end.x - points.start.x)
+        let linePath = SketchRenderer.sketchyLine(from: points.start, to: points.end, seed: seed)
 
         ZStack {
             // Hand-drawn line (double-stroke)
-            SketchRenderer.sketchyLine(from: points.start, to: points.end, seed: seed)
+            linePath
                 .trim(from: 0, to: drawProgress)
                 .stroke(
                     isSelected ? Color.gzSelectionStroke : Color.gzEdgeStroke,
@@ -74,11 +79,12 @@ struct EdgeRenderer: View {
             }
         }
         .contentShape(
-            SketchRenderer.sketchyLine(from: points.start, to: points.end, seed: seed)
+            linePath
                 .stroke(lineWidth: 12)
         )
         .onTapGesture { onSelect() }
         .onAppear {
+            drawProgress = 0
             withAnimation(.easeOut(duration: 0.4)) {
                 drawProgress = 1.0
             }

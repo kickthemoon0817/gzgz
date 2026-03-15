@@ -26,6 +26,7 @@ extension Color {
 
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        assert(hex.count == 6, "Color(hex:) expects 6-digit RGB hex, got: \(hex)")
         var int: UInt64 = 0
         Scanner(string: hex).scanHexInt64(&int)
         let r, g, b: UInt64

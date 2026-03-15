@@ -12,7 +12,7 @@ struct HistoryPanel: View {
                 .padding(.horizontal, 12)
                 .padding(.vertical, 10)
 
-            Divider().foregroundColor(.gzChromeBorder)
+            Divider().overlay(Color.gzChromeBorder)
 
             if history.entries.isEmpty {
                 Text("No actions yet")
