@@ -65,21 +65,21 @@ enum SketchRenderer {
 
         let cx = rect.midX
         let cy = rect.midY
-        let rx = rect.width / 2 + 14  // generous padding outside node
-        let ry = rect.height / 2 + 14
-        let segments = 20
+        let rx = rect.width / 2 + 6
+        let ry = rect.height / 2 + 6
+        let segments = 24
 
-        // Draw an imperfect ellipse with visible wobble, slight overshoot (doesn't close perfectly)
+        // Subtle imperfect ellipse — confident pen circle, not chaotic
         for i in 0...segments {
-            let angle = Double(i) / Double(segments) * 2.0 * .pi * 1.08
-            let wobbleR = rng.wobble(6.0)
+            let angle = Double(i) / Double(segments) * 2.0 * .pi * 1.03
+            let wobbleR = rng.wobble(2.0)
             let x = cx + (rx + wobbleR) * cos(angle)
             let y = cy + (ry + wobbleR) * sin(angle)
             if i == 0 {
                 path.move(to: CGPoint(x: x, y: y))
             } else {
-                let ctrlAngle = (Double(i) - 0.5) / Double(segments) * 2.0 * .pi * 1.08
-                let ctrlWobble = rng.wobble(5.0)
+                let ctrlAngle = (Double(i) - 0.5) / Double(segments) * 2.0 * .pi * 1.03
+                let ctrlWobble = rng.wobble(1.5)
                 let ctrlX = cx + (rx + ctrlWobble) * cos(ctrlAngle)
                 let ctrlY = cy + (ry + ctrlWobble) * sin(ctrlAngle)
                 path.addQuadCurve(
@@ -121,14 +121,14 @@ enum SketchRenderer {
     static func sketchyRect(
         in rect: CGRect,
         seed: Int,
-        wobbleMagnitude: Double = 2.0
+        wobbleMagnitude: Double = 1.0
     ) -> Path {
         var path = Path()
         var rng = SeededRandom(seed: seed)
 
         // Draw rectangle twice with slight variation (roughjs double-stroke)
         for pass in 0..<2 {
-            let offset = pass == 0 ? 0.0 : 1.2
+            let offset = pass == 0 ? 0.0 : 0.3
             let corners = [
                 CGPoint(x: rect.minX, y: rect.minY),
                 CGPoint(x: rect.maxX, y: rect.minY),

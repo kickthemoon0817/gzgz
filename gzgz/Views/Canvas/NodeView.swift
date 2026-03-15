@@ -26,7 +26,7 @@ struct NodeView: View {
             // Hand-drawn selection circle (behind everything)
             if isSelected {
                 SketchRenderer.selectionCircle(around: nodeRect, seed: seed)
-                    .stroke(Color.gzBrand.opacity(0.7), lineWidth: 1.8)
+                    .stroke(Color.gzBrand.opacity(0.6), lineWidth: 1.2)
             }
 
             // Fill — warm near-white, slightly warmer than canvas
@@ -40,7 +40,7 @@ struct NodeView: View {
             SketchRenderer.sketchyRect(in: nodeRect, seed: seed)
                 .stroke(
                     Color.gzNodeStroke.opacity(isSelected ? 1.0 : strokeOpacity),
-                    lineWidth: isSelected ? 2.5 : 1.8
+                    lineWidth: isSelected ? 1.6 : 1.0
                 )
 
             // Content layer
