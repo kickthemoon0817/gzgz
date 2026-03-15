@@ -67,6 +67,18 @@ struct ContentView: View {
                 .keyboardShortcut("z", modifiers: [.command, .shift])
                 Button("History") { showHistory.toggle() }
                     .keyboardShortcut("y", modifiers: .command)
+                Button("Delete") {
+                    withAnimation(.easeOut(duration: 0.2)) {
+                        try? vm.deleteSelected()
+                    }
+                }
+                .keyboardShortcut(.delete, modifiers: [])
+                Button("DeleteForward") {
+                    withAnimation(.easeOut(duration: 0.2)) {
+                        try? vm.deleteSelected()
+                    }
+                }
+                .keyboardShortcut(.deleteForward, modifiers: [])
             }
             .frame(width: 0, height: 0)
             .opacity(0)

@@ -24,7 +24,7 @@ struct NodeView: View {
             )
             .fill(isSearchHighlighted ? Color.gzSearchHighlight : Color.gzNodeFill)
 
-            // Double-stroke outline (the hand-drawn look)
+            // Double-stroke outline
             SketchRenderer.sketchyRect(
                 in: CGRect(x: 0, y: 0, width: node.width, height: node.height),
                 seed: seed
@@ -58,7 +58,6 @@ struct NodeView: View {
         .frame(width: node.width, height: node.height)
         .position(x: node.x + node.width / 2 + dragOffset.width,
                   y: node.y + node.height / 2 + dragOffset.height)
-        // Appear animation
         .scaleEffect(appeared ? 1.0 : 0.0)
         .opacity(appeared ? 1.0 : 0.0)
         .onAppear {
@@ -70,14 +69,6 @@ struct NodeView: View {
                 appeared = true
             }
         }
-        // Selection glow
-        .overlay(
-            isSelected ?
-                RoundedRectangle(cornerRadius: 4)
-                    .stroke(Color.gzSelectionStroke.opacity(0.3), lineWidth: 1)
-                    .frame(width: node.width + 8, height: node.height + 8)
-                : nil
-        )
         .onTapGesture(count: 2) {
             editText = node.text
             isEditing = true

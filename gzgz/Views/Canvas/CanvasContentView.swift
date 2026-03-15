@@ -12,11 +12,25 @@ struct CanvasContentView: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                // Sketchbook paper background
+                // Layer 1: Sketchbook paper background (no hit testing)
                 SketchRenderer.paperBackground()
                     .allowsHitTesting(false)
 
-                // Canvas content with transform
+                // Layer 2: Background tap target — BEHIND nodes
+                // Only receives taps that miss all nodes (ZStack hit tests top-down)
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture(count: 2) { location in
+                        let canvasPoint = screenToCanvas(location, in: geometry.size)
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            try? vm.createNode(at: canvasPoint)
+                        }
+                    }
+                    .onTapGesture(count: 1) { _ in
+                        vm.clearSelection()
+                    }
+
+                // Layer 3: Nodes and edges (ON TOP — their taps take priority)
                 ZStack {
                     ForEach(vm.edges) { edge in
                         if let source = vm.nodes.first(where: { $0.id == edge.sourceNodeId }),
@@ -58,19 +72,7 @@ struct CanvasContentView: View {
                 .offset(x: pan.width, y: pan.height)
             }
             .clipped()
-            .contentShape(Rectangle())
-            // Double-click to create node
-            .onTapGesture(count: 2) { location in
-                let canvasPoint = screenToCanvas(location, in: geometry.size)
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                    try? vm.createNode(at: canvasPoint)
-                }
-            }
-            // Single tap to deselect
-            .onTapGesture(count: 1) { _ in
-                vm.clearSelection()
-            }
-            // NSView overlay for trackpad scroll + pinch (passes clicks through)
+            // Trackpad scroll + pinch (NSEvent monitors, passes clicks through)
             .overlay {
                 TrackpadOverlay(
                     onScroll: { delta in
@@ -79,7 +81,6 @@ struct CanvasContentView: View {
                     onMagnify: { magnification, cursorInWindow in
                         let newZoom = max(0.1, min(5.0, zoom * (1.0 + magnification)))
                         let scale = newZoom / zoom
-                        // Zoom toward cursor
                         let cx = cursorInWindow.x - geometry.size.width / 2
                         let cy = cursorInWindow.y - geometry.size.height / 2
                         pan = CGSize(
@@ -89,7 +90,7 @@ struct CanvasContentView: View {
                         zoom = newZoom
                     }
                 )
-                .allowsHitTesting(false) // Clicks pass through to SwiftUI
+                .allowsHitTesting(false)
             }
         }
     }
@@ -134,7 +135,6 @@ class TrackpadNSView: NSView {
     }
 
     private func setupMonitors() {
-        // Clean up existing monitors
         removeMonitors()
 
         scrollMonitor = NSEvent.addLocalMonitorForEvents(matching: .scrollWheel) { [weak self] event in
@@ -152,7 +152,6 @@ class TrackpadNSView: NSView {
         magnifyMonitor = NSEvent.addLocalMonitorForEvents(matching: .magnify) { [weak self] event in
             guard let self, let window = self.window, event.window == window else { return event }
             let location = self.convert(event.locationInWindow, from: nil)
-            // Flip Y for SwiftUI coordinate system
             let flippedY = self.bounds.height - location.y
             DispatchQueue.main.async {
                 self.onMagnify?(event.magnification, CGPoint(x: location.x, y: flippedY))
